@@ -274,11 +274,11 @@ def run_api(port=7860):
         return "HealthBot_CRS_chat.html not found in " + base, 404
 
     @app.route("/chatui") 
-    @app.route("/HealthBot_CRS_chat.html")
+    @app.route("/HealthBot_CRS_Chat.html")
     def chat_page():
         base = os.path.dirname(os.path.abspath(__file__))
-        if os.path.exists(os.path.join(base, "HealthBot_CRS_chat.html")):
-            return send_from_directory(base, "HealthBot_CRS_chat.html")
+        if os.path.exists(os.path.join(base, "HealthBot_CRS_Chat.html")):
+            return send_from_directory(base, "HealthBot_CRS_Chat.html")
         return "Not found", 404
 
     @app.route("/health", methods=["GET"])
