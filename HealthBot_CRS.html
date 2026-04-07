@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>HealthBot-CRS | Clinical Response System</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:'Inter',sans-serif;background:#0a0e1a;color:#e0e6f0;overflow-x:hidden;}
+
+/* ── NAV ── */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:16px 40px;display:flex;align-items:center;justify-content:space-between;background:rgba(10,14,26,0.85);backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,0.06);}
+.nav-logo{display:flex;align-items:center;gap:10px;}
+.nav-logo .icon{width:36px;height:36px;background:linear-gradient(135deg,#1a6fa8,#3498db);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;}
+.nav-logo span{font-weight:700;font-size:1rem;color:#fff;}
+.nav-logo small{color:#85c1e9;font-size:0.7rem;display:block;font-weight:400;}
+nav a{color:#85c1e9;text-decoration:none;font-size:0.85rem;font-weight:500;transition:color .2s;}
+nav a:hover{color:#fff;}
+.nav-links{display:flex;gap:28px;align-items:center;}
+.nav-btn{background:linear-gradient(135deg,#1a6fa8,#3498db);color:#fff!important;padding:8px 20px;border-radius:20px;font-weight:600!important;}
+.nav-btn:hover{opacity:.9;transform:scale(1.02);}
+
+/* ── HERO ── */
+#hero{min-height:100vh;display:flex;align-items:center;justify-content:center;text-align:center;padding:100px 20px 60px;position:relative;overflow:hidden;}
+.hero-bg{position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 50% 30%,rgba(52,152,219,0.12),transparent),radial-gradient(ellipse 50% 40% at 80% 70%,rgba(26,111,168,0.08),transparent);}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(52,152,219,0.12);border:1px solid rgba(52,152,219,0.3);padding:6px 16px;border-radius:20px;font-size:0.78rem;color:#85c1e9;margin-bottom:28px;}
+.hero-badge span{width:7px;height:7px;background:#2ecc71;border-radius:50%;animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.4;}}
+h1{font-size:clamp(2.4rem,6vw,4rem);font-weight:800;line-height:1.15;margin-bottom:20px;background:linear-gradient(135deg,#ffffff 0%,#85c1e9 60%,#3498db 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.hero-sub{font-size:1.05rem;color:#8da4b8;max-width:560px;margin:0 auto 40px;line-height:1.7;font-weight:400;}
+.hero-btns{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;}
+.btn-primary{background:linear-gradient(135deg,#1a6fa8,#3498db);color:#fff;padding:14px 32px;border-radius:25px;text-decoration:none;font-weight:600;font-size:0.95rem;transition:all .2s;box-shadow:0 4px 20px rgba(52,152,219,0.3);}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(52,152,219,0.4);}
+.btn-secondary{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.15);color:#e0e6f0;padding:14px 32px;border-radius:25px;text-decoration:none;font-weight:500;font-size:0.95rem;transition:all .2s;}
+.btn-secondary:hover{background:rgba(255,255,255,0.1);}
+.hero-stats{display:flex;gap:40px;justify-content:center;margin-top:56px;flex-wrap:wrap;}
+.stat{text-align:center;}
+.stat-n{font-size:1.8rem;font-weight:800;color:#3498db;}
+.stat-l{font-size:0.75rem;color:#7f8c8d;margin-top:2px;font-weight:500;}
+
+/* ── HOW IT WORKS ── */
+#how{padding:100px 20px;background:rgba(255,255,255,0.015);}
+.section-label{text-align:center;font-size:0.75rem;font-weight:700;color:#3498db;letter-spacing:2px;text-transform:uppercase;margin-bottom:12px;}
+h2{text-align:center;font-size:clamp(1.8rem,4vw,2.6rem);font-weight:800;margin-bottom:14px;color:#fff;}
+.section-sub{text-align:center;color:#7f8c8d;max-width:520px;margin:0 auto 60px;font-size:0.95rem;line-height:1.7;}
+.steps{display:flex;gap:0;justify-content:center;align-items:flex-start;flex-wrap:wrap;max-width:900px;margin:0 auto;position:relative;}
+.step{flex:1;min-width:160px;max-width:200px;text-align:center;padding:20px 16px;position:relative;}
+.step-num{width:52px;height:52px;background:linear-gradient(135deg,#1a6fa8,#3498db);border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:1.1rem;color:#fff;margin:0 auto 16px;box-shadow:0 4px 18px rgba(52,152,219,0.35);}
+.step h3{font-size:0.9rem;font-weight:700;color:#fff;margin-bottom:8px;}
+.step p{font-size:0.78rem;color:#7f8c8d;line-height:1.6;}
+.step-arrow{align-self:center;color:#3498db;font-size:1.4rem;padding:0 4px;margin-top:-30px;}
+
+/* ── ARCHITECTURE ── */
+#arch{padding:100px 20px;}
+.arch-grid{display:flex;gap:16px;max-width:960px;margin:0 auto;flex-wrap:wrap;justify-content:center;}
+.arch-card{flex:1;min-width:200px;max-width:220px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:16px;padding:24px 20px;text-align:center;transition:all .3s;}
+.arch-card:hover{background:rgba(52,152,219,0.07);border-color:rgba(52,152,219,0.3);transform:translateY(-4px);}
+.arch-icon{font-size:2rem;margin-bottom:14px;}
+.arch-card h3{font-size:0.88rem;font-weight:700;color:#fff;margin-bottom:8px;}
+.arch-card p{font-size:0.75rem;color:#7f8c8d;line-height:1.6;}
+.arch-tag{display:inline-block;background:rgba(52,152,219,0.15);color:#85c1e9;font-size:0.65rem;font-weight:700;padding:2px 8px;border-radius:8px;margin-top:10px;}
+
+/* ── FEATURES ── */
+#features{padding:100px 20px;background:rgba(255,255,255,0.015);}
+.feat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px;max-width:860px;margin:0 auto;}
+.feat{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:16px;padding:28px 24px;transition:all .3s;}
+.feat:hover{border-color:rgba(52,152,219,0.3);background:rgba(52,152,219,0.05);}
+.feat-ico{font-size:1.8rem;margin-bottom:14px;}
+.feat h3{font-size:0.95rem;font-weight:700;color:#fff;margin-bottom:8px;}
+.feat p{font-size:0.82rem;color:#7f8c8d;line-height:1.65;}
+
+/* ── INTENTS ── */
+#intents{padding:100px 20px;}
+.intent-grid{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;max-width:800px;margin:0 auto;}
+.intent-chip{padding:12px 20px;border-radius:30px;font-size:0.82rem;font-weight:600;border:1px solid;transition:all .3s;cursor:default;}
+.intent-chip:hover{transform:scale(1.05);}
+.ic-emergency{background:rgba(231,76,60,0.1);border-color:rgba(231,76,60,0.4);color:#e74c3c;}
+.ic-symptom{background:rgba(243,156,18,0.1);border-color:rgba(243,156,18,0.4);color:#f39c12;}
+.ic-medication{background:rgba(52,152,219,0.1);border-color:rgba(52,152,219,0.4);color:#3498db;}
+.ic-mental{background:rgba(155,89,182,0.1);border-color:rgba(155,89,182,0.4);color:#9b59b6;}
+.ic-lifestyle{background:rgba(46,204,113,0.1);border-color:rgba(46,204,113,0.4);color:#2ecc71;}
+.ic-diagnostics{background:rgba(26,188,156,0.1);border-color:rgba(26,188,156,0.4);color:#1abc9c;}
+.ic-general{background:rgba(52,73,94,0.3);border-color:rgba(127,140,141,0.4);color:#95a5a6;}
+
+/* ── DISCLAIMER ── */
+#disclaimer{padding:60px 20px;background:rgba(243,156,18,0.04);border-top:1px solid rgba(243,156,18,0.15);}
+.disc-box{max-width:700px;margin:0 auto;text-align:center;}
+.disc-box .ico{font-size:2rem;margin-bottom:14px;}
+.disc-box h3{color:#f39c12;font-size:1rem;font-weight:700;margin-bottom:10px;}
+.disc-box p{color:#8da4b8;font-size:0.85rem;line-height:1.7;}
+
+/* ── FOOTER ── */
+footer{padding:30px 20px;text-align:center;border-top:1px solid rgba(255,255,255,0.06);color:#4a5568;font-size:0.78rem;}
+footer span{color:#3498db;}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">
+    <div class="icon">&#x1F3E5;</div>
+    <div><span>HealthBot-CRS</span><small>Clinical Response System</small></div>
+  </div>
+  <div class="nav-links">
+    <a href="#how">How it Works</a>
+    <a href="#arch">Architecture</a>
+    <a href="#features">Features</a>
+    <a href="http://localhost:5000/chatui" class="nav-btn">Launch Chat &#x27A4;</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-bg"></div>
+  <div style="position:relative;z-index:1;">
+    <div class="hero-badge"><span></span> Research Prototype &nbsp;|&nbsp; AI-Powered Medical Q&A</div>
+    <h1>Clinical Response<br>System for Health Queries</h1>
+    <p class="hero-sub">An intelligent chatbot that combines TF-IDF, SBERT embeddings, machine learning classification and collaborative filtering to deliver accurate, intent-aware medical responses.</p>
+    <div class="hero-btns">
+      <a href="http://localhost:5000/chatui" class="btn-primary">&#x1F4AC; Launch HealthBot</a>
+      <a href="#how" class="btn-secondary">How it Works &#x2193;</a>
+    </div>
+    <div class="hero-stats">
+      <div class="stat"><div class="stat-n">100K+</div><div class="stat-l">Training Samples</div></div>
+      <div class="stat"><div class="stat-n">7</div><div class="stat-l">Intent Categories</div></div>
+      <div class="stat"><div class="stat-n">5</div><div class="stat-l">ML Classifiers</div></div>
+      <div class="stat"><div class="stat-n">96%</div><div class="stat-l">Top Confidence</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section id="how">
+  <div class="section-label">Pipeline</div>
+  <h2>How HealthBot-CRS Works</h2>
+  <p class="section-sub">Every message goes through a 5-step intelligent pipeline before a response is returned.</p>
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <h3>Input Cleaning</h3>
+      <p>Raw text is lowercased, punctuation removed, and stopwords filtered.</p>
+    </div>
+    <div class="step-arrow">&#x2192;</div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <h3>Feature Encoding</h3>
+      <p>TF-IDF (5K features) + SBERT sentence embeddings are concatenated into one vector.</p>
+    </div>
+    <div class="step-arrow">&#x2192;</div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <h3>Intent Classification</h3>
+      <p>Best ML classifier (LR / SVM / RF) predicts the intent category with confidence score.</p>
+    </div>
+    <div class="step-arrow">&#x2192;</div>
+    <div class="step">
+      <div class="step-num">4</div>
+      <h3>Hybrid Retrieval</h3>
+      <p>Content-based cosine similarity + collaborative filtering scores are blended (α=0.6).</p>
+    </div>
+    <div class="step-arrow">&#x2192;</div>
+    <div class="step">
+      <div class="step-num">5</div>
+      <h3>Response Return</h3>
+      <p>Top-ranked response is cleaned, follow-up chips generated, and returned to the UI.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ARCHITECTURE -->
+<section id="arch">
+  <div class="section-label">Architecture</div>
+  <h2>System Components</h2>
+  <p class="section-sub">HealthBot-CRS is built on a modular ML pipeline with 6 key components.</p>
+  <div class="arch-grid">
+    <div class="arch-card">
+      <div class="arch-icon">&#x1F9F9;</div>
+      <h3>Data Preprocessing</h3>
+      <p>ChatDoctor dataset cleaned, entities extracted, intent labels assigned.</p>
+      <span class="arch-tag">01_data_loading.py</span>
+    </div>
+    <div class="arch-card">
+      <div class="arch-icon">&#x1F9EE;</div>
+      <h3>Feature Engineering</h3>
+      <p>TF-IDF matrix + SBERT all-MiniLM-L6-v2 embeddings generated.</p>
+      <span class="arch-tag">02_feature_engineering.py</span>
+    </div>
+    <div class="arch-card">
+      <div class="arch-icon">&#x1F9E9;</div>
+      <h3>Clustering</h3>
+      <p>KMeans on SBERT embeddings groups users into behavioural clusters.</p>
+      <span class="arch-tag">03_clustering.py</span>
+    </div>
+    <div class="arch-card">
+      <div class="arch-icon">&#x1F3AF;</div>
+      <h3>Classification</h3>
+      <p>5 classifiers trained; best F1 model auto-selected at runtime.</p>
+      <span class="arch-tag">04_classification.py</span>
+    </div>
+    <div class="arch-card">
+      <div class="arch-icon">&#x1F504;</div>
+      <h3>Recommender</h3>
+      <p>SVD / NMF / KNN collaborative filtering for personalised ranking.</p>
+      <span class="arch-tag">05_recommender.py</span>
+    </div>
+    <div class="arch-card">
+      <div class="arch-icon">&#x1F916;</div>
+      <h3>Chatbot API</h3>
+      <p>Flask REST API loads all models and serves responses in real time.</p>
+      <span class="arch-tag">08_chatbot.py</span>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section id="features">
+  <div class="section-label">Features</div>
+  <h2>What Makes It Smart</h2>
+  <p class="section-sub">HealthBot-CRS goes beyond simple keyword matching.</p>
+  <div class="feat-grid">
+    <div class="feat"><div class="feat-ico">&#x1F9E0;</div><h3>Hybrid Retrieval</h3><p>Combines semantic similarity (SBERT cosine) with collaborative filtering scores for more relevant responses than TF-IDF alone.</p></div>
+    <div class="feat"><div class="feat-ico">&#x1F4CA;</div><h3>Confidence Scoring</h3><p>Every response shows a real-time confidence bar so users can judge reliability at a glance.</p></div>
+    <div class="feat"><div class="feat-ico">&#x1F4AC;</div><h3>Follow-up Chips</h3><p>Intent-aware follow-up question suggestions appear after every response, just like ChatGPT.</p></div>
+    <div class="feat"><div class="feat-ico">&#x26A0;&#xFE0F;</div><h3>Emergency Detection</h3><p>Chest pain, stroke and emergency keywords are immediately routed to the emergency intent.</p></div>
+    <div class="feat"><div class="feat-ico">&#x1F501;</div><h3>Auto Model Selection</h3><p>At startup, all 5 classifier models are evaluated and the best F1 model is chosen automatically.</p></div>
+    <div class="feat"><div class="feat-ico">&#x1F9FC;</div><h3>Response Cleaning</h3><p>Dataset boilerplate and sign-off phrases are stripped so responses sound natural and professional.</p></div>
+  </div>
+</section>
+
+<!-- INTENTS -->
+<section id="intents">
+  <div class="section-label">Intent Categories</div>
+  <h2>What You Can Ask</h2>
+  <p class="section-sub">HealthBot-CRS recognises 7 intent categories covering the most common health query types.</p>
+  <div class="intent-grid">
+    <div class="intent-chip ic-emergency">&#x1F6A8; Emergency</div>
+    <div class="intent-chip ic-symptom">&#x1F912; Symptom Inquiry</div>
+    <div class="intent-chip ic-medication">&#x1F48A; Medication</div>
+    <div class="intent-chip ic-mental">&#x1F9D8; Mental Health</div>
+    <div class="intent-chip ic-lifestyle">&#x1F966; Lifestyle</div>
+    <div class="intent-chip ic-diagnostics">&#x1F52C; Diagnostics</div>
+    <div class="intent-chip ic-general">&#x1F4AC; General Inquiry</div>
+  </div>
+  <div style="text-align:center;margin-top:48px;">
+    <a href="http://localhost:5000/chatui" class="btn-primary" style="font-size:1rem;padding:16px 40px;">Start Chatting &#x27A4;</a>
+  </div>
+</section>
+
+<!-- DISCLAIMER -->
+<section id="disclaimer">
+  <div class="disc-box">
+    <div class="ico">&#x26A0;&#xFE0F;</div>
+    <h3>Research Prototype Disclaimer</h3>
+    <p>HealthBot-CRS is an academic research prototype developed as part of a data science project. It is NOT a substitute for professional medical advice, diagnosis, or treatment. Always consult a qualified healthcare professional for any medical concerns.</p>
+  </div>
+</section>
+
+<footer>
+  Built with &#x2764;&#xFE0F; for Data Science Applications &nbsp;|&nbsp; <span>HealthBot-CRS</span> &copy; 2026
+</footer>
+
+</body>
+</html>

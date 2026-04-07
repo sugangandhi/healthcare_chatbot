@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>HealthBot-CRS</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Segoe UI',sans-serif;background:#1a1a2e;display:flex;flex-direction:column;height:100vh;overflow:hidden;}
+#hdr{background:linear-gradient(135deg,#1a6fa8,#2980b9);padding:14px 20px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 2px 10px rgba(0,0,0,0.3);}
+#hdr .logo{display:flex;align-items:center;gap:12px;}
+#hdr .logo .icon{width:44px;height:44px;background:rgba(255,255,255,0.15);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.4rem;}
+#hdr .logo h1{color:#fff;font-size:1.2rem;font-weight:700;}
+#hdr .logo p{color:rgba(255,255,255,0.75);font-size:0.75rem;}
+#status{padding:5px 12px;border-radius:20px;font-size:0.75rem;font-weight:600;background:rgba(255,255,255,0.1);color:#ccc;}
+#status.ok{background:rgba(39,174,96,0.2);color:#2ecc71;border:1px solid rgba(46,204,113,0.4);}
+#status.err{background:rgba(231,76,60,0.2);color:#e74c3c;border:1px solid rgba(231,76,60,0.4);}
+#banner{background:#fef9e7;border-left:4px solid #f39c12;padding:8px 16px;font-size:0.78rem;color:#7d6608;}
+#chat{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px;}
+#chat::-webkit-scrollbar{width:5px;}
+#chat::-webkit-scrollbar-track{background:rgba(255,255,255,0.05);}
+#chat::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.2);border-radius:3px;}
+.row{display:flex;gap:10px;align-items:flex-start;}
+.row.user{flex-direction:row-reverse;}
+.av{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;}
+.bubble{max-width:78%;padding:12px 15px;border-radius:16px;font-size:0.88rem;line-height:1.5;word-wrap:break-word;white-space:normal;}
+.bot .bubble{background:#eaf4fb;border:2px solid #3498db;color:#1a252f;border-radius:4px 16px 16px 16px;}
+.user .bubble{background:#2C3E50;color:#ecf0f1;border-radius:16px 4px 16px 16px;}
+.ts{font-size:0.65rem;color:#95a5a6;margin-top:4px;text-align:right;}
+.tag{display:inline-block;background:#d4efff;color:#1a6fa8;font-size:0.65rem;font-weight:700;padding:2px 8px;border-radius:10px;margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px;}
+.crow{display:flex;align-items:center;gap:8px;margin-bottom:4px;font-size:0.75rem;color:#7f8c8d;}
+.cbar{flex:1;height:6px;background:#ecf0f1;border-radius:3px;overflow:hidden;}
+.cfill{height:100%;border-radius:3px;transition:width .4s ease;}
+#typing{display:none;padding:10px 14px;}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#3498db;animation:blink 1.2s infinite;}
+.dot:nth-child(2){animation-delay:.2s;}
+.dot:nth-child(3){animation-delay:.4s;}
+@keyframes blink{0%,80%,100%{opacity:0;}40%{opacity:1;}}
+#suggs{display:flex;flex-wrap:wrap;gap:8px;padding:8px 16px;background:rgba(255,255,255,0.03);border-top:1px solid rgba(255,255,255,0.07);align-items:center;}
+.sb{background:rgba(52,152,219,0.12);border:1px solid rgba(52,152,219,0.3);color:#85c1e9;padding:5px 12px;border-radius:14px;font-size:0.78rem;cursor:pointer;white-space:nowrap;transition:all .2s;}
+.sb:hover{background:rgba(52,152,219,0.25);color:#fff;}
+#inp{display:flex;align-items:flex-end;gap:8px;padding:10px 14px;background:#16213e;border-top:1px solid rgba(255,255,255,0.08);}
+#txt{flex:1;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);border-radius:20px;padding:10px 16px;color:#ecf0f1;font-size:0.9rem;outline:none;resize:none;max-height:100px;overflow-y:auto;line-height:1.4;}
+#txt::placeholder{color:#95a5a6;}
+#txt:focus{border-color:rgba(52,152,219,0.5);}
+#btn{background:linear-gradient(135deg,#2980b9,#3498db);border:none;border-radius:50%;width:42px;height:42px;cursor:pointer;color:#fff;font-size:1.1rem;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .2s;}
+#btn:hover{transform:scale(1.08);}
+#btn:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+#clr{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:50%;width:38px;height:38px;cursor:pointer;font-size:1rem;color:#95a5a6;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .2s;}
+#clr:hover{color:#e74c3c;border-color:rgba(231,76,60,0.4);}
+</style>
+</head>
+<body>
+
+<div id="hdr">
+  <div class="logo">
+    <div class="icon">&#x1F3E5;</div>
+    <div><h1>HealthBot-CRS</h1><p>Clinical Response System</p></div>
+  </div>
+  <div style="display:flex;align-items:center;gap:10px;">
+    <a href="http://localhost:5000" style="display:flex;align-items:center;gap:6px;padding:6px 14px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:20px;color:#85c1e9;text-decoration:none;font-size:0.78rem;font-weight:500;" onmouseover="this.style.background='rgba(255,255,255,0.15)'" onmouseout="this.style.background='rgba(255,255,255,0.08)'">&#x2190; Home</a>
+      <select id="langSel" title="Speech language"
+        style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);
+        border-radius:20px;padding:4px 10px;color:#85c1e9;font-size:0.8rem;
+        cursor:pointer;outline:none;appearance:none;-webkit-appearance:none;">
+        <option value="en-US">🇺🇸 EN</option>
+        <option value="fr-FR">🇫🇷 FR</option>
+      </select>
+    <div id="status">&#9679; Connecting...</div>
+  </div>
+</div>
+
+<div id="banner">&#9888; Research Prototype: Not a substitute for professional medical advice.</div>
+<div id="chat"></div>
+<div id="typing"><div class="row"><div class="av" style="background:#eaf4fb;border:2px solid #3498db;">&#x1F916;</div><div class="bubble bot"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div></div></div>
+
+<div id="suggs">
+  <span style="font-size:0.72rem;color:#95a5a6;width:100%;">Try asking:</span>
+  <button class="sb">I have a severe headache and fever</button>
+  <button class="sb">Side effects of ibuprofen?</button>
+  <button class="sb">I feel anxious and cannot sleep</button>
+  <button class="sb">Chest pain and shortness of breath</button>
+  <button class="sb">How to manage type 2 diabetes?</button>
+</div>
+
+<div id="inp">
+  <button id="clr" title="Clear chat">&#x1F5D1;</button>
+  <textarea id="txt" rows="1" placeholder="Type your health question..."></textarea>
+  <button id="btn">&#x27A4;</button>
+</div>
+
+<script>
+var API="http://localhost:5000";
+var busy=false;
+function pad(n){return n<10?"0"+n:""+n;}
+function now(){var d=new Date();return pad(d.getHours())+":"+pad(d.getMinutes());}
+function avatar(role){
+  return role==="bot"
+    ?"<div class='av' style='background:#eaf4fb;border:2px solid #3498db;'>&#x1F916;</div>"
+    :"<div class='av' style='background:#2C3E50;border:2px solid #566573;color:#aab7c4;'>&#x1F464;</div>";
+}
+function setStatus(ok){
+  var s=document.getElementById("status");
+  s.className=ok?"ok":"err";
+  s.innerHTML=ok?"&#10003; Connected":"&#9888; Offline";
+}
+function ping(){
+  var x=new XMLHttpRequest();x.open("GET",API+"/health",true);x.timeout=4000;
+  x.onreadystatechange=function(){if(x.readyState===4)setStatus(x.status===200);};
+  x.ontimeout=x.onerror=function(){setStatus(false);};
+  x.send();setTimeout(ping,15000);
+}
+function addMsg(role,html){
+  var chat=document.getElementById("chat");
+  var d=document.createElement("div");
+  d.className="row "+role;
+  d.innerHTML=avatar(role)+"<div><div class='bubble "+role+"'>"+html+"</div><div class='ts'>"+now()+"</div></div>";
+  chat.appendChild(d);chat.scrollTop=chat.scrollHeight;
+}
+function showTyping(){document.getElementById("typing").style.display="block";var c=document.getElementById("chat");c.scrollTop=c.scrollHeight;}
+function hideTyping(){document.getElementById("typing").style.display="none";}
+function getFb(){
+  return {intent:"general_inquiry",confidence:0.4,
+    response:"Cannot connect to HealthBot server. Run: python 08_chatbot.py --api",
+    alternatives:[],followups:["Check server","Try again"]};
+}
+function translateAndSpeak(btn, text){
+  var lang=document.getElementById('langSel').value;
+  if(lang==='en-US'){ ttsSpeak(btn, text); return; }
+  var langCode=lang.split('-')[0];
+  btn.innerHTML='&#x23F3; Translating...';
+  btn.style.color='#f39c12';
+  fetch('https://api.mymemory.translated.net/get?q='+encodeURIComponent(text)+'&langpair=en|'+langCode)
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      var translated=d.responseData.translatedText||text;
+      ttsSpeak(btn, translated);
+    })
+    .catch(function(){
+      btn.innerHTML='&#x1F50A; Listen';
+      btn.style.color='#85c1e9';
+      ttsSpeak(btn, text);
+    });
+}
+function ttsSpeak(btn, text){
+  window.speechSynthesis.cancel();
+  if(btn.dataset.playing==='1'){
+    btn.innerHTML='&#x1F50A; Listen';
+    btn.style.borderColor='rgba(52,152,219,0.3)';
+    btn.style.color='#85c1e9';
+    btn.dataset.playing='0';
+    return;
+  }
+  var lang=document.getElementById('langSel').value;
+  var u=new SpeechSynthesisUtterance(text);
+  u.lang=lang; u.rate=0.95; u.pitch=1.0;
+  u.onend=function(){
+    btn.innerHTML='&#x1F50A; Listen';
+    btn.style.borderColor='rgba(52,152,219,0.3)';
+    btn.style.color='#85c1e9';
+    btn.dataset.playing='0';
+  };
+  window.speechSynthesis.speak(u);
+  btn.innerHTML='&#x23F9; Stop';
+  btn.style.borderColor='rgba(231,76,60,0.4)';
+  btn.style.color='#e74c3c';
+  btn.dataset.playing='1';
+}
+
+function mkBubble(data){
+  var c=Math.round((data.confidence||0)*100);
+  var clr=c>=80?"#27ae60":c>=55?"#f39c12":"#e74c3c";
+  var r=(data.response||"No response.").replace(/\n/g," ");
+  var safe=r.replace(/'/g,"\\'").replace(/"/g,"&quot;");
+
+  // Related section
+  var alt="";
+  if(data.alternatives&&data.alternatives[0]){
+    var full=(data.alternatives[0]).replace(/\n/g," ");
+    var preview=full.length>180?full.substring(0,180)+"...":full;
+    alt="<div style='margin-top:8px;border-left:3px solid #aed6f1;border-radius:5px;background:#f8f9fa;overflow:hidden;'>"
+       +"<div onclick=\"(function(el){var p=el.nextElementSibling;var b=p.nextElementSibling;var open=b.style.display!=='none';b.style.display=open?'none':'block';p.style.display=open?'block':'none';el.querySelector('span').innerHTML=open?'&#9660; Related':'&#9650; Related';})(this)\" style='padding:8px 10px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;'>"
+       +"<span style='font-size:0.68rem;color:#3498db;font-weight:600;'>&#9660; Related</span>"
+       +"<span style='font-size:0.68rem;color:#95a5a6;'>click to expand</span></div>"
+       +"<div style='padding:0 10px 8px;font-size:0.8rem;color:#555;word-wrap:break-word;'>"+preview+"</div>"
+       +"<div style='display:none;padding:0 10px 8px;font-size:0.8rem;color:#333;line-height:1.6;word-wrap:break-word;'>"+full+"</div>"
+       +"</div>";
+  }
+
+  // Follow-up chips
+  var chips="";
+  if(data.followups&&data.followups.length){
+    chips="<div style='margin-top:10px;'>"
+         +"<div style='font-size:0.68rem;color:#95a5a6;margin-bottom:5px;'>Follow-up questions:</div>"
+         +"<div style='display:flex;flex-wrap:wrap;gap:6px;'>";
+    data.followups.forEach(function(q){
+      chips+="<span onclick=\"document.getElementById('txt').value='"+q.replace(/'/g,"\\'")+"';doSend();\" "
+            +"style='cursor:pointer;padding:5px 11px;background:#eaf4fb;border:1px solid #aed6f1;"
+            +"border-radius:14px;font-size:0.76rem;color:#2980b9;white-space:nowrap;' "
+            +"onmouseover=\"this.style.background='#d4ecf7'\" onmouseout=\"this.style.background='#eaf4fb'\">"+q+"</span>";
+    });
+    chips+="</div></div>";
+  }
+
+  // TTS toggle button
+  var tts="<div style='margin-top:8px;'>"
+  +"<button onclick=\"translateAndSpeak(this, '"+safe+"')\" "
+  +"data-playing='0' "
+  +"style='background:none;border:1px solid rgba(52,152,219,0.3);border-radius:20px;"
+  +"padding:4px 12px;cursor:pointer;color:#85c1e9;font-size:0.75rem;transition:all .2s;'>"
+  +"&#x1F50A; Listen</button>"
+  +"</div>";
+
+  return "<span class='tag'>"+(data.intent||"unknown")+"</span>"
+    +"<div class='crow'><span>Confidence</span><div class='cbar'><div class='cfill' style='width:"+c+"%;background:"+clr+"'></div></div><span style='color:"+clr+";font-weight:600'>"+c+"%</span></div>"
+    +"<div style='margin-top:6px;word-wrap:break-word;line-height:1.6;'>"+r+"</div>"
+    +tts+alt+chips;
+
+  var chips="";
+  if(data.followups&&data.followups.length){
+    chips="<div style='margin-top:10px;'>"
+         +"<div style='font-size:0.68rem;color:#95a5a6;margin-bottom:5px;'>Follow-up questions:</div>"
+         +"<div style='display:flex;flex-wrap:wrap;gap:6px;'>";
+    data.followups.forEach(function(q){
+      chips+="<span onclick=\"document.getElementById('txt').value='"+q.replace(/'/g,"\\'")+"';doSend();\" "
+            +"style='cursor:pointer;padding:5px 11px;background:#eaf4fb;border:1px solid #aed6f1;"
+            +"border-radius:14px;font-size:0.76rem;color:#2980b9;white-space:nowrap;' "
+            +"onmouseover=\"this.style.background='#d4ecf7'\" onmouseout=\"this.style.background='#eaf4fb'\">"+q+"</span>";
+    });
+    chips+="</div></div>";
+  }
+  return "<span class='tag'>"+(data.intent||"unknown")+"</span>"
+    +"<div class='crow'><span>Confidence</span><div class='cbar'><div class='cfill' style='width:"+c+"%;background:"+clr+"'></div></div><span style='color:"+clr+";font-weight:600'>"+c+"%</span></div>"
+    +"<div style='margin-top:6px;word-wrap:break-word;line-height:1.6;'>"+r+"</div>"
+    +"<div style='margin-top:8px;'>"
+    +"<button onclick=\"speak('"+r.replace(/'/g,"\\'").replace(/\n/g,' ')+"')\" "
+    +"title='Listen' "
+    +"style='background:none;border:1px solid rgba(52,152,219,0.3);border-radius:20px;padding:4px 12px;cursor:pointer;color:#85c1e9;font-size:0.75rem;transition:all .2s;' "
+    +"onmouseover=\"this.style.background='rgba(52,152,219,0.1)'\" "
+    +"onmouseout=\"this.style.background='none'\">&#x1F50A; Listen</button>"
+    +"</div>"
+    +alt+chips;
+}
+function resetSuggs(){
+  var box=document.getElementById("suggs");
+  box.innerHTML="<span style='font-size:0.72rem;color:#95a5a6;width:100%;'>Try asking:</span>";
+  ["I have a severe headache and fever","Side effects of ibuprofen?",
+   "I feel anxious and cannot sleep","Chest pain and shortness of breath",
+   "How to manage type 2 diabetes?"].forEach(function(q){
+    var b=document.createElement("button");
+    b.className="sb";b.textContent=q;
+    b.onclick=function(){document.getElementById("txt").value=q;doSend();};
+    box.appendChild(b);
+  });
+  box.style.display="flex";
+}
+function clearChat(){
+  document.getElementById("chat").innerHTML="";
+  addMsg("bot","<b>Chat cleared.</b> Hello again! How can I help you today?");
+  resetSuggs();
+}
+function doSend(){
+  if(busy)return;
+  var ta=document.getElementById("txt");
+  var txt=ta.value.trim();
+  if(!txt)return;
+  document.getElementById("suggs").style.display="none";
+  addMsg("user",txt);
+  ta.value="";ta.style.height="auto";
+  busy=true;document.getElementById("btn").disabled=true;
+  showTyping();
+  var x=new XMLHttpRequest();x.open("POST",API+"/chat",true);
+  x.setRequestHeader("Content-Type","application/json");x.timeout=12000;
+  x.onreadystatechange=function(){
+    if(x.readyState===4){
+      hideTyping();
+      var data;
+      if(x.status===200){try{data=JSON.parse(x.responseText);setStatus(true);}catch(e){data=getFb();}}
+      else{data=getFb();setStatus(false);}
+      addMsg("bot",mkBubble(data));
+      busy=false;document.getElementById("btn").disabled=false;document.getElementById("txt").focus();
+    }
+  };
+  x.ontimeout=x.onerror=function(){hideTyping();addMsg("bot",mkBubble(getFb()));busy=false;document.getElementById("btn").disabled=false;setStatus(false);};
+  x.send(JSON.stringify({message:txt,alpha:0.6,top_k:2}));
+}
+window.onload=function(){
+  document.getElementById("btn").onclick=doSend;
+  document.getElementById("clr").onclick=clearChat;
+  document.getElementById("txt").onkeydown=function(e){if(e.keyCode===13&&!e.shiftKey){e.preventDefault();doSend();}};
+  document.getElementById("txt").oninput=function(){this.style.height="auto";this.style.height=Math.min(this.scrollHeight,100)+"px";};
+  var sbs=document.querySelectorAll(".sb");
+  for(var i=0;i<sbs.length;i++){
+    (function(el){el.onclick=function(){document.getElementById("txt").value=this.textContent;doSend();};})(sbs[i]);
+  }
+  addMsg("bot","<div><span class='tag'>system</span><br><br>Hello! I am <b>HealthBot-CRS</b>.<br><br>I can help with symptoms, medications, diagnostics, mental health, lifestyle and emergencies.<br><br>Try a suggestion below or type your question.</div>");
+  ping();
+};
+</script>
+</body>
+</html>
