@@ -3,4 +3,4 @@ WORKDIR /app
 COPY . .
 RUN pip install -r requirements.txt
 EXPOSE 7860
-CMD ["python", "08_chatbot.py", "--port", "7860"]
+CMD ["python", "08_chatbot.py", "--api"]
