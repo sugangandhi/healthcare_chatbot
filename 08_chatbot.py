@@ -255,7 +255,7 @@ def run_cli():
 # ============================================================
 # FLASK API
 # ============================================================
-def run_api(port=5000):
+def run_api(port=7860):
     try:
         from flask import Flask, request, jsonify, send_from_directory
         from flask_cors import CORS
@@ -316,7 +316,7 @@ if __name__ == "__main__":
     import sys
     if "--api" in sys.argv:
         idx = sys.argv.index("--api")
-        port = int(sys.argv[idx+1]) if len(sys.argv) > idx+1 else 5000
+        port = int(sys.argv[idx+1]) if len(sys.argv) > idx+1 else 7860
         run_api(port)
     else:
         run_cli()
