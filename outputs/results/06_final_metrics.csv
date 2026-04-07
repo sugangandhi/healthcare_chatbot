@@ -1,0 +1,16 @@
+model,task,metric,value
+Logistic Regression,Classification,Accuracy,0.726
+Logistic Regression,Classification,F1_weighted,0.7081098389778551
+Random Forest,Classification,Accuracy,0.592
+Random Forest,Classification,F1_weighted,0.5194186650181752
+Content-Based,Recommender,Precision@1,0.34
+Content-Based,Recommender,Precision@3,0.7
+Content-Based,Recommender,Precision@5,0.83
+Content-Based,Recommender,Avg Cosine Sim,0.6374332308769226
+SVD,Recommender,RMSE,0.0018991317936973
+SVD,Recommender,MAE,0.0012408396020251
+NMF,Recommender,RMSE,0.0024501987899506
+NMF,Recommender,MAE,0.0016169069032511
+KNN,Recommender,RMSE,0.1703321893805869
+KNN,Recommender,MAE,0.1458900381558136
+Hybrid(α=1.0),Recommender,Precision@1,0.24

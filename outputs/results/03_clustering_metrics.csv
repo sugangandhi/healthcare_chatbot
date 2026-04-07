@@ -1,0 +1,13 @@
+,value
+kmeans_tfidf_silhouette,0.004313782325356833
+kmeans_sbert_silhouette,0.042901940643787384
+kmeans_tfidf_davies_bouldin,11.906447969886626
+kmeans_sbert_davies_bouldin,3.9204278624794324
+kmeans_tfidf_ari,0.031663623263533044
+kmeans_sbert_ari,0.017779417034615913
+kmeans_tfidf_nmi,0.05986921880594879
+kmeans_sbert_nmi,0.034579033439944666
+dbscan_n_clusters,1.0
+dbscan_noise_pct,0.2
+dbscan_silhouette,0.0
+dbscan_ari,0.0
