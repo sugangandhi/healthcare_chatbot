@@ -42,14 +42,8 @@ y_full = df["intent_encoded"].values
 _, X_test, _, y_test = train_test_split(X_full, y_full,
     test_size=0.2, random_state=42, stratify=y_full)
 
-best_clf_name, best_clf, best_f1 = None, None, -1
-for name in ['Random_Forest', 'LinearSVC', 'SVM', 'Gradient_Boosting', 'MLP']:
-    path = f'outputs/models/{name}.pkl'
-    if os.path.exists(path):
-        m = joblib.load(path)
-        f1 = f1_score(m.predict(X_test), y_test, average='weighted')
-        if f1 > best_f1:
-            best_clf_name, best_clf, best_f1 = name, m, f1
+best_clf = joblib.load('outputs/models/LinearSVC.pkl')
+best_clf_name = 'LinearSVC'
 
 cf_model_name = "none"
 for name in ["svd_recommender","nmf_recommender","knn_recommender"]:
@@ -171,7 +165,9 @@ def get_response(user_input, top_k=3, alpha=0.6, verbose=False):
             break
     if intent_idx is None:
         intent_idx = best_clf.predict(X_q)[0]
-        confidence = float(best_clf.predict_proba(X_q).max())
+        scores = best_clf.decision_function(X_q)[0]
+        scores_norm = (scores - scores.min()) / (scores.max() - scores.min() + 1e-9)
+        confidence = float(scores_norm.max())
 
     intent_name = intent_names[intent_idx]
 
