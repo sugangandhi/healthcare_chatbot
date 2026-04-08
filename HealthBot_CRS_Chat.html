@@ -105,10 +105,10 @@ function setStatus(ok){
   s.innerHTML=ok?"&#10003; Connected":"&#9888; Offline";
 }
 function ping(){
-  var x=new XMLHttpRequest();x.open("GET",API+"/health",true);x.timeout=4000;
+  var x=new XMLHttpRequest();x.open("GET",API+"/health",true);x.timeout=20000;
   x.onreadystatechange=function(){if(x.readyState===4)setStatus(x.status===200);};
   x.ontimeout=x.onerror=function(){setStatus(false);};
-  x.send();setTimeout(ping,15000);
+  x.send();setTimeout(ping,500);
 }
 function addMsg(role,html){
   var chat=document.getElementById("chat");
