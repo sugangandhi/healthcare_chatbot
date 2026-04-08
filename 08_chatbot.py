@@ -73,7 +73,7 @@ else:
     R_cf = R.copy()
 R_cf = np.clip(R_cf, 0.5, 5.0)
 
-print(f" Classifier : {best_clf_name} (F1={best_f1:.4f})")
+print(f" Classifier : {best_clf_name}")
 print(f" CF model   : {cf_model_name}")
 print(f" Dataset    : {len(df):,} responses | {n_intents} intents")
 print(f" Ready!\n")
