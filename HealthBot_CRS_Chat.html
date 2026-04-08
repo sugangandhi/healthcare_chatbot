@@ -194,7 +194,7 @@ function mkBubble(data){
          +"<div style='font-size:0.68rem;color:#95a5a6;margin-bottom:5px;'>Follow-up questions:</div>"
          +"<div style='display:flex;flex-wrap:wrap;gap:6px;'>";
     data.followups.forEach(function(q){
-      chips+="<span onclick=\"document.getElementById('txt').value='"+q.replace(/'/g,"\\'")+"';doSend();\" "
+      chips+="<span onclick=\"document.getElementById('txt').value='"+q.replace(/'/g,"\\'")+"';setTimeout(doSend,150);\"
             +"style='cursor:pointer;padding:5px 11px;background:#eaf4fb;border:1px solid #aed6f1;"
             +"border-radius:14px;font-size:0.76rem;color:#2980b9;white-space:nowrap;' "
             +"onmouseover=\"this.style.background='#d4ecf7'\" onmouseout=\"this.style.background='#eaf4fb'\">"+q+"</span>";
@@ -215,31 +215,6 @@ function mkBubble(data){
     +"<div class='crow'><span>Confidence</span><div class='cbar'><div class='cfill' style='width:"+c+"%;background:"+clr+"'></div></div><span style='color:"+clr+";font-weight:600'>"+c+"%</span></div>"
     +"<div style='margin-top:6px;word-wrap:break-word;line-height:1.6;'>"+r+"</div>"
     +tts+alt+chips;
-
-  var chips="";
-  if(data.followups&&data.followups.length){
-    chips="<div style='margin-top:10px;'>"
-         +"<div style='font-size:0.68rem;color:#95a5a6;margin-bottom:5px;'>Follow-up questions:</div>"
-         +"<div style='display:flex;flex-wrap:wrap;gap:6px;'>";
-    data.followups.forEach(function(q){
-      chips+="<span onclick=\"document.getElementById('txt').value='"+q.replace(/'/g,"\\'")+"';doSend();\" "
-            +"style='cursor:pointer;padding:5px 11px;background:#eaf4fb;border:1px solid #aed6f1;"
-            +"border-radius:14px;font-size:0.76rem;color:#2980b9;white-space:nowrap;' "
-            +"onmouseover=\"this.style.background='#d4ecf7'\" onmouseout=\"this.style.background='#eaf4fb'\">"+q+"</span>";
-    });
-    chips+="</div></div>";
-  }
-  return "<span class='tag'>"+(data.intent||"unknown")+"</span>"
-    +"<div class='crow'><span>Confidence</span><div class='cbar'><div class='cfill' style='width:"+c+"%;background:"+clr+"'></div></div><span style='color:"+clr+";font-weight:600'>"+c+"%</span></div>"
-    +"<div style='margin-top:6px;word-wrap:break-word;line-height:1.6;'>"+r+"</div>"
-    +"<div style='margin-top:8px;'>"
-    +"<button onclick=\"speak('"+r.replace(/'/g,"\\'").replace(/\n/g,' ')+"')\" "
-    +"title='Listen' "
-    +"style='background:none;border:1px solid rgba(52,152,219,0.3);border-radius:20px;padding:4px 12px;cursor:pointer;color:#85c1e9;font-size:0.75rem;transition:all .2s;' "
-    +"onmouseover=\"this.style.background='rgba(52,152,219,0.1)'\" "
-    +"onmouseout=\"this.style.background='none'\">&#x1F50A; Listen</button>"
-    +"</div>"
-    +alt+chips;
 }
 function resetSuggs(){
   var box=document.getElementById("suggs");
