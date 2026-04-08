@@ -90,7 +90,7 @@ body{font-family:'Segoe UI',sans-serif;background:#1a1a2e;display:flex;flex-dire
 </div>
 
 <script>
-var API="https://sugan04-healthbot-crs.hf.space";
+var API="";
 var busy=false;
 function pad(n){return n<10?"0"+n:""+n;}
 function now(){var d=new Date();return pad(d.getHours())+":"+pad(d.getMinutes());}
@@ -105,10 +105,8 @@ function setStatus(ok){
   s.innerHTML=ok?"&#10003; Connected":"&#9888; Offline";
 }
 function ping(){
-  var x=new XMLHttpRequest();x.open("GET",API+"/health",true);x.timeout=4000;
-  x.onreadystatechange=function(){if(x.readyState===4)setStatus(x.status===200);};
-  x.ontimeout=x.onerror=function(){setStatus(false);};
-  x.send();setTimeout(ping,15000);
+  fetch("/health").then(function(r){setStatus(r.ok);}).catch(function(){setStatus(false);});
+  setTimeout(ping,30000);
 }
 function addMsg(role,html){
   var chat=document.getElementById("chat");
@@ -120,60 +118,37 @@ function addMsg(role,html){
 function showTyping(){document.getElementById("typing").style.display="block";var c=document.getElementById("chat");c.scrollTop=c.scrollHeight;}
 function hideTyping(){document.getElementById("typing").style.display="none";}
 function getFb(){
-  return {intent:"general_inquiry",confidence:0.4,
-    response:"Cannot connect to HealthBot server. Run: python 08_chatbot.py --api",
-    alternatives:[],followups:["Check server","Try again"]};
+  return {intent:"system",confidence:0.0,
+    response:"Sorry, HealthBot is temporarily unavailable. Please try again in a moment.",
+    alternatives:[],followups:["Try again","Refresh the page"]};
 }
-function translateAndSpeak(btn, text){
+function translateAndSpeak(btn,text){
   var lang=document.getElementById('langSel').value;
-  if(lang==='en-US'){ ttsSpeak(btn, text); return; }
+  if(lang==='en-US'){ttsSpeak(btn,text);return;}
   var langCode=lang.split('-')[0];
-  btn.innerHTML='&#x23F3; Translating...';
-  btn.style.color='#f39c12';
+  btn.innerHTML='&#x23F3; Translating...';btn.style.color='#f39c12';
   fetch('https://api.mymemory.translated.net/get?q='+encodeURIComponent(text)+'&langpair=en|'+langCode)
-    .then(function(r){ return r.json(); })
-    .then(function(d){
-      var translated=d.responseData.translatedText||text;
-      ttsSpeak(btn, translated);
-    })
-    .catch(function(){
-      btn.innerHTML='&#x1F50A; Listen';
-      btn.style.color='#85c1e9';
-      ttsSpeak(btn, text);
-    });
+    .then(function(r){return r.json();})
+    .then(function(d){ttsSpeak(btn,d.responseData.translatedText||text);})
+    .catch(function(){btn.innerHTML='&#x1F50A; Listen';btn.style.color='#85c1e9';ttsSpeak(btn,text);});
 }
-function ttsSpeak(btn, text){
+function ttsSpeak(btn,text){
   window.speechSynthesis.cancel();
   if(btn.dataset.playing==='1'){
-    btn.innerHTML='&#x1F50A; Listen';
-    btn.style.borderColor='rgba(52,152,219,0.3)';
-    btn.style.color='#85c1e9';
-    btn.dataset.playing='0';
-    return;
+    btn.innerHTML='&#x1F50A; Listen';btn.style.borderColor='rgba(52,152,219,0.3)';btn.style.color='#85c1e9';btn.dataset.playing='0';return;
   }
   var lang=document.getElementById('langSel').value;
   var u=new SpeechSynthesisUtterance(text);
-  u.lang=lang; u.rate=0.95; u.pitch=1.0;
-  u.onend=function(){
-    btn.innerHTML='&#x1F50A; Listen';
-    btn.style.borderColor='rgba(52,152,219,0.3)';
-    btn.style.color='#85c1e9';
-    btn.dataset.playing='0';
-  };
+  u.lang=lang;u.rate=0.95;u.pitch=1.0;
+  u.onend=function(){btn.innerHTML='&#x1F50A; Listen';btn.style.borderColor='rgba(52,152,219,0.3)';btn.style.color='#85c1e9';btn.dataset.playing='0';};
   window.speechSynthesis.speak(u);
-  btn.innerHTML='&#x23F9; Stop';
-  btn.style.borderColor='rgba(231,76,60,0.4)';
-  btn.style.color='#e74c3c';
-  btn.dataset.playing='1';
+  btn.innerHTML='&#x23F9; Stop';btn.style.borderColor='rgba(231,76,60,0.4)';btn.style.color='#e74c3c';btn.dataset.playing='1';
 }
-
 function mkBubble(data){
   var c=Math.round((data.confidence||0)*100);
   var clr=c>=80?"#27ae60":c>=55?"#f39c12":"#e74c3c";
   var r=(data.response||"No response.").replace(/\n/g," ");
   var safe=r.replace(/'/g,"\\'").replace(/"/g,"&quot;");
-
-  // Related section
   var alt="";
   if(data.alternatives&&data.alternatives[0]){
     var full=(data.alternatives[0]).replace(/\n/g," ");
@@ -186,60 +161,22 @@ function mkBubble(data){
        +"<div style='display:none;padding:0 10px 8px;font-size:0.8rem;color:#333;line-height:1.6;word-wrap:break-word;'>"+full+"</div>"
        +"</div>";
   }
-
-  // Follow-up chips
   var chips="";
   if(data.followups&&data.followups.length){
-    chips="<div style='margin-top:10px;'>"
-         +"<div style='font-size:0.68rem;color:#95a5a6;margin-bottom:5px;'>Follow-up questions:</div>"
-         +"<div style='display:flex;flex-wrap:wrap;gap:6px;'>";
+    chips="<div style='margin-top:10px;'><div style='font-size:0.68rem;color:#95a5a6;margin-bottom:5px;'>Follow-up questions:</div><div style='display:flex;flex-wrap:wrap;gap:6px;'>";
     data.followups.forEach(function(q){
-      chips+="<span onclick=\"document.getElementById('txt').value='"+q.replace(/'/g,"\\'")+"';doSend();\" "
-            +"style='cursor:pointer;padding:5px 11px;background:#eaf4fb;border:1px solid #aed6f1;"
-            +"border-radius:14px;font-size:0.76rem;color:#2980b9;white-space:nowrap;' "
+      chips+="<span onclick=\"document.getElementById('txt').value='"+q.replace(/'/g,"\\'")+"';setTimeout(doSend,150);\" "
+            +"style='cursor:pointer;padding:5px 11px;background:#eaf4fb;border:1px solid #aed6f1;border-radius:14px;font-size:0.76rem;color:#2980b9;white-space:nowrap;' "
             +"onmouseover=\"this.style.background='#d4ecf7'\" onmouseout=\"this.style.background='#eaf4fb'\">"+q+"</span>";
     });
     chips+="</div></div>";
   }
-
-  // TTS toggle button
-  var tts="<div style='margin-top:8px;'>"
-  +"<button onclick=\"translateAndSpeak(this, '"+safe+"')\" "
-  +"data-playing='0' "
-  +"style='background:none;border:1px solid rgba(52,152,219,0.3);border-radius:20px;"
-  +"padding:4px 12px;cursor:pointer;color:#85c1e9;font-size:0.75rem;transition:all .2s;'>"
-  +"&#x1F50A; Listen</button>"
-  +"</div>";
-
+  var tts="<div style='margin-top:8px;'><button onclick=\"translateAndSpeak(this,'"+safe+"')\" data-playing='0' "
+         +"style='background:none;border:1px solid rgba(52,152,219,0.3);border-radius:20px;padding:4px 12px;cursor:pointer;color:#85c1e9;font-size:0.75rem;transition:all .2s;'>&#x1F50A; Listen</button></div>";
   return "<span class='tag'>"+(data.intent||"unknown")+"</span>"
     +"<div class='crow'><span>Confidence</span><div class='cbar'><div class='cfill' style='width:"+c+"%;background:"+clr+"'></div></div><span style='color:"+clr+";font-weight:600'>"+c+"%</span></div>"
     +"<div style='margin-top:6px;word-wrap:break-word;line-height:1.6;'>"+r+"</div>"
     +tts+alt+chips;
-
-  var chips="";
-  if(data.followups&&data.followups.length){
-    chips="<div style='margin-top:10px;'>"
-         +"<div style='font-size:0.68rem;color:#95a5a6;margin-bottom:5px;'>Follow-up questions:</div>"
-         +"<div style='display:flex;flex-wrap:wrap;gap:6px;'>";
-    data.followups.forEach(function(q){
-      chips+="<span onclick=\"document.getElementById('txt').value='"+q.replace(/'/g,"\\'")+"';doSend();\" "
-            +"style='cursor:pointer;padding:5px 11px;background:#eaf4fb;border:1px solid #aed6f1;"
-            +"border-radius:14px;font-size:0.76rem;color:#2980b9;white-space:nowrap;' "
-            +"onmouseover=\"this.style.background='#d4ecf7'\" onmouseout=\"this.style.background='#eaf4fb'\">"+q+"</span>";
-    });
-    chips+="</div></div>";
-  }
-  return "<span class='tag'>"+(data.intent||"unknown")+"</span>"
-    +"<div class='crow'><span>Confidence</span><div class='cbar'><div class='cfill' style='width:"+c+"%;background:"+clr+"'></div></div><span style='color:"+clr+";font-weight:600'>"+c+"%</span></div>"
-    +"<div style='margin-top:6px;word-wrap:break-word;line-height:1.6;'>"+r+"</div>"
-    +"<div style='margin-top:8px;'>"
-    +"<button onclick=\"speak('"+r.replace(/'/g,"\\'").replace(/\n/g,' ')+"')\" "
-    +"title='Listen' "
-    +"style='background:none;border:1px solid rgba(52,152,219,0.3);border-radius:20px;padding:4px 12px;cursor:pointer;color:#85c1e9;font-size:0.75rem;transition:all .2s;' "
-    +"onmouseover=\"this.style.background='rgba(52,152,219,0.1)'\" "
-    +"onmouseout=\"this.style.background='none'\">&#x1F50A; Listen</button>"
-    +"</div>"
-    +alt+chips;
 }
 function resetSuggs(){
   var box=document.getElementById("suggs");
@@ -247,8 +184,7 @@ function resetSuggs(){
   ["I have a severe headache and fever","Side effects of ibuprofen?",
    "I feel anxious and cannot sleep","Chest pain and shortness of breath",
    "How to manage type 2 diabetes?"].forEach(function(q){
-    var b=document.createElement("button");
-    b.className="sb";b.textContent=q;
+    var b=document.createElement("button");b.className="sb";b.textContent=q;
     b.onclick=function(){document.getElementById("txt").value=q;doSend();};
     box.appendChild(b);
   });
@@ -262,39 +198,40 @@ function clearChat(){
 function doSend(){
   if(busy)return;
   var ta=document.getElementById("txt");
-  var txt=ta.value.trim();
-  if(!txt)return;
+  var msg=ta.value.trim();
+  if(!msg)return;
   document.getElementById("suggs").style.display="none";
-  addMsg("user",txt);
+  addMsg("user",msg);
   ta.value="";ta.style.height="auto";
   busy=true;document.getElementById("btn").disabled=true;
   showTyping();
-  var x=new XMLHttpRequest();x.open("POST",API+"/chat",true);
-  x.setRequestHeader("Content-Type","application/json");x.timeout=12000;
-  x.onreadystatechange=function(){
-    if(x.readyState===4){
-      hideTyping();
-      var data;
-      if(x.status===200){try{data=JSON.parse(x.responseText);setStatus(true);}catch(e){data=getFb();}}
-      else{data=getFb();setStatus(false);}
-      addMsg("bot",mkBubble(data));
-      busy=false;document.getElementById("btn").disabled=false;document.getElementById("txt").focus();
-    }
-  };
-  x.ontimeout=x.onerror=function(){hideTyping();addMsg("bot",mkBubble(getFb()));busy=false;document.getElementById("btn").disabled=false;setStatus(false);};
-  x.send(JSON.stringify({message:txt,alpha:0.6,top_k:2}));
+  fetch("/chat",{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({message:msg,alpha:0.6,top_k:2})
+  })
+  .then(function(r){return r.ok?r.json():Promise.reject(r.status);})
+  .then(function(data){
+    hideTyping();setStatus(true);
+    addMsg("bot",mkBubble(data));
+    busy=false;document.getElementById("btn").disabled=false;document.getElementById("txt").focus();
+  })
+  .catch(function(){
+    hideTyping();
+    addMsg("bot",mkBubble(getFb()));
+    busy=false;document.getElementById("btn").disabled=false;setStatus(false);
+  });
 }
 window.onload=function(){
   document.getElementById("btn").onclick=doSend;
   document.getElementById("clr").onclick=clearChat;
   document.getElementById("txt").onkeydown=function(e){if(e.keyCode===13&&!e.shiftKey){e.preventDefault();doSend();}};
   document.getElementById("txt").oninput=function(){this.style.height="auto";this.style.height=Math.min(this.scrollHeight,100)+"px";};
-  var sbs=document.querySelectorAll(".sb");
-  for(var i=0;i<sbs.length;i++){
-    (function(el){el.onclick=function(){document.getElementById("txt").value=this.textContent;doSend();};})(sbs[i]);
-  }
+  document.querySelectorAll(".sb").forEach(function(el){
+    el.onclick=function(){document.getElementById("txt").value=this.textContent;doSend();};
+  });
   addMsg("bot","<div><span class='tag'>system</span><br><br>Hello! I am <b>HealthBot-CRS</b>.<br><br>I can help with symptoms, medications, diagnostics, mental health, lifestyle and emergencies.<br><br>Try a suggestion below or type your question.</div>");
-  ping();
+  setTimeout(ping,2000);
 };
 </script>
 </body>
