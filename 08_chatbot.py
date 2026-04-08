@@ -311,7 +311,7 @@ def run_api(port=7860):
 
     print(f" HealthBot running!")
     print(f" Open: http://localhost:{port}")
-    app.run(host="0.0.0.0", port=port, debug=False)
+    app.run(host="0.0.0.0", port=port, debug=False, threaded=False)
 
 # ============================================================
 # ENTRY POINT
