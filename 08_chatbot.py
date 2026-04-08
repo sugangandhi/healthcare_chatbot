@@ -188,8 +188,12 @@ def get_response(user_input, top_k=3, alpha=0.6, verbose=False):
         intent_mask = np.ones(len(df), dtype=bool)
 
     cluster_sbert = normalize(
-        np.array([emb_norm[df["kmeans_sbert"] == c].mean(axis=0)
-                  for c in range(n_users)])
+        np.array([
+            emb_norm[df["kmeans_sbert"] == c].mean(axis=0)
+            if (df["kmeans_sbert"] == c).sum() > 0
+            else np.zeros(emb_norm.shape[1])
+            for c in range(n_users)
+        ])
     )
     user_cluster = cosine_similarity(sbert_q_norm, cluster_sbert).argmax()
     cf_intent_scores = R_cf[user_cluster]
