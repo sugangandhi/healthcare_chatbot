@@ -291,19 +291,30 @@ def run_api(port=7860):
 
     @app.route("/chat", methods=["POST"])
     def chat():
+        import traceback
         data = request.get_json()
         if not data or "message" not in data:
-            return jsonify({"error":"No message provided"}), 400
-        result = get_response(data["message"],
-            top_k=int(data.get("top_k",3)),
-            alpha=float(data.get("alpha",0.6)))
+            return jsonify({"error": "No message provided"}), 400
+        try:
+            result = get_response(data["message"],
+                top_k=int(data.get("top_k", 3)),
+                alpha=float(data.get("alpha", 0.6)))
+            return jsonify({
+                "intent":       result["intent"],
+                "confidence":   round(result["confidence"], 4),
+                "response":     result["response"],
+                "alternatives": result["alternatives"],
+                "followups":    result.get("followups", []),
+            })
+    except Exception as e:
+        print("❌ CHAT ERROR:", traceback.format_exc())
         return jsonify({
-            "intent":       result["intent"],
-            "confidence":   round(result["confidence"],4),
-            "response":     result["response"],
-            "alternatives": result["alternatives"],
-            "followups":    result.get("followups",[]),
-        })
+            "intent": "error",
+            "confidence": 0.0,
+            "response": str(e),
+            "alternatives": [],
+            "followups": []
+        }), 200
 
     @app.route("/intents", methods=["GET"])
     def intents():
