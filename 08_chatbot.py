@@ -306,15 +306,15 @@ def run_api(port=7860):
                 "alternatives": result["alternatives"],
                 "followups":    result.get("followups", []),
             })
-    except Exception as e:
-        print("❌ CHAT ERROR:", traceback.format_exc())
-        return jsonify({
-            "intent": "error",
-            "confidence": 0.0,
-            "response": str(e),
-            "alternatives": [],
-            "followups": []
-        }), 200
+        except Exception as e:
+            print("❌ CHAT ERROR:", traceback.format_exc())
+            return jsonify({
+                "intent": "error",
+                "confidence": 0.0,
+                "response": str(e),
+                "alternatives": [],
+                "followups": []
+            }), 200
 
     @app.route("/intents", methods=["GET"])
     def intents():
