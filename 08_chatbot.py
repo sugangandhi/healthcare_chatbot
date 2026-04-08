@@ -47,6 +47,8 @@ for name in ["Logistic_Regression","Random_Forest","SVM","Gradient_Boosting","ML
     path = f"outputs/models/{name}.pkl"
     if os.path.exists(path):
         m = joblib.load(path)
+        if hasattr(m, 'multi_class'):
+            del m.__dict__['multi_class']
         f1 = f1_score(m.predict(X_test), y_test, average="weighted")
         if f1 > best_f1:
             best_clf_name, best_clf, best_f1 = name, m, f1
