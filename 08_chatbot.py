@@ -43,16 +43,16 @@ _, X_test, _, y_test = train_test_split(X_full, y_full,
     test_size=0.2, random_state=42, stratify=y_full)
 
 best_clf_name, best_clf, best_f1 = None, None, -1
-for name in ["Logistic_Regression","Random_Forest","SVM","Gradient_Boosting","MLP"]:
-    path = f"outputs/models/{name}.pkl"
+for name in ['Logistic_Regression','Random_Forest','SVM','Gradient_Boosting','MLP']:
+    path = f'outputs/models/{name}.pkl'
     if os.path.exists(path):
         m = joblib.load(path)
         for attr in ['multi_class', 'l1_ratio']:
-            if hasattr(m, attr):
-                try:
-                    delattr(m, attr)
-                except:
-                    pass
+            if attr in m.__dict__:
+                del m.__dict__[attr]
+        f1 = f1_score(m.predict(X_test), y_test, average='weighted')
+        if f1 > best_f1:
+            best_clf_name, best_clf, best_f1 = name, m, f1
 
 cf_model_name = "none"
 for name in ["svd_recommender","nmf_recommender","knn_recommender"]:
