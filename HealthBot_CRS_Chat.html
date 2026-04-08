@@ -270,7 +270,7 @@ function doSend(){
   busy=true;document.getElementById("btn").disabled=true;
   showTyping();
   var x=new XMLHttpRequest();x.open("POST",API+"/chat",true);
-  x.setRequestHeader("Content-Type","application/json");x.timeout=12000;
+  x.setRequestHeader("Content-Type","application/json");x.timeout=25000;
   x.onreadystatechange=function(){
     if(x.readyState===4){
       hideTyping();
