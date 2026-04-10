@@ -10,7 +10,6 @@ pinned: false
 
 # 🏥 HealthBot-CRS — Clinical Response System
 
-> **Group:** DSA_202101_8  
 > **Live Demo:** [https://sugan04-healthbot-crs.hf.space](https://sugan04-healthbot-crs.hf.space)  
 > ⚠️ *Research Prototype — Not a substitute for professional medical advice.*
 
@@ -184,8 +183,4 @@ healthbot-crs/
 
 ---
 
-## 👥 Group
-
-**DSA_202101_8**  
-Course: Data Science & Analytics  
 Deployment: [https://sugan04-healthbot-crs.hf.space](https://sugan04-healthbot-crs.hf.space)
